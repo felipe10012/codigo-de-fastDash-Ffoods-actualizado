@@ -1,0 +1,107 @@
+<!DOCTYPE HTML>
+<html lang="esp">
+    <head>
+        <meta charset="UTF-8">
+        <title>FastDash</title>
+        <style>
+            body{
+                margin: 0;
+            }
+            .encabezado{
+                height: 300px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                color: white;
+                font-size:50px;
+                background:linear-gradient(to bottom,
+                purple,
+                red,
+                orange
+                );
+            }
+            .contenido{
+                text-align: center;
+                padding: 40px;  
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            h2{
+                font-size: 35px;
+            }
+               p{
+                  color:gray;
+                         font-size: 20px;
+               }
+               button{
+                width: 250px;
+                 height: 50px;
+                  border: none;
+                    border-radius: 50px;
+                      background:linear-gradient(
+                       to right,
+                      purple,
+                       red
+                       );
+                       color:white;
+                       font-size: 20px;
+                        cursor: pointer;
+                        margin-top: 30px;
+                        padding-right: 10px;
+               }
+               input{
+                width: 230px;
+                height: 50px;
+                border: none;
+                border-radius: 50px;
+                padding-left: 5px;
+                margin-top: 20px;
+                box-shadow: 0px 8px 30px rgba(109, 1, 1, 0.377);
+                
+               }
+               .olvide{
+                background:none;
+                color: purple;
+                font-size:15px;
+                border:none;
+                cursor: pointer;
+                margin-top: 15px;
+                padding: 0px;
+               }
+
+        </style>
+    
+    </head>
+    <body>
+        <div class="encabezado">
+            FastDash
+        </div>
+        <div class="contenido ">
+           
+            
+                <button onclick="cuenta()">
+                    Crear una cuenta para continuar
+                </button>
+                     <input type="email" placeholder="Registrate aqui si ya tienes una cuenta ">      
+                       <input type="password"placeholder="ingresa tu contraseña">
+                         <button class="olvide" onclick="recuperar()">
+                         ¿olvidaste tu contraseña?
+              </button>
+                     <button onclick="mensaje()">
+                      Continuar 
+                </button> 
+        </div>
+    </body>
+    <script>
+        function mensaje(){
+            alert("Bienvenido a FastDash");        
+        }
+        function cuenta(){
+            alert("Crea una cuenta para continuar");
+        }
+        function recuperar(){
+        alert("olvidaste tu contraseña");
+    }
+
+    
