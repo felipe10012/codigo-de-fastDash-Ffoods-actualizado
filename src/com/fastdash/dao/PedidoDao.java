@@ -13,6 +13,8 @@ public interface PedidoDao {
 
     List<Pedido> listarPorUsuario(int idUsuario);
 
+    List<Pedido> listarPorRepartidor(int idRepartidor);
+
     void actualizar(Pedido pedido);
 
     void eliminar(int idPedido);

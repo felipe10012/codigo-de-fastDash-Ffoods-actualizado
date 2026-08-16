@@ -7,6 +7,7 @@ public class Pedido {
 
     private int idPedido;
     private int idUsuario;
+    private int idRepartidor;
     private Timestamp fechaPedido;
     private BigDecimal total;
     private String estado;
@@ -14,9 +15,10 @@ public class Pedido {
     public Pedido() {
     }
 
-    public Pedido(int idPedido, int idUsuario, Timestamp fechaPedido, BigDecimal total, String estado) {
+    public Pedido(int idPedido, int idUsuario, int idRepartidor, Timestamp fechaPedido, BigDecimal total, String estado) {
         this.idPedido = idPedido;
         this.idUsuario = idUsuario;
+        this.idRepartidor = idRepartidor;
         this.fechaPedido = fechaPedido;
         this.total = total;
         this.estado = estado;
@@ -36,6 +38,14 @@ public class Pedido {
 
     public void setIdUsuario(int idUsuario) {
         this.idUsuario = idUsuario;
+    }
+
+    public int getIdRepartidor() {
+        return idRepartidor;
+    }
+
+    public void setIdRepartidor(int idRepartidor) {
+        this.idRepartidor = idRepartidor;
     }
 
     public Timestamp getFechaPedido() {
@@ -67,6 +77,7 @@ public class Pedido {
         return "Pedido{"
                 + "idPedido=" + idPedido
                 + ", idUsuario=" + idUsuario
+                + ", idRepartidor=" + idRepartidor
                 + ", fechaPedido=" + fechaPedido
                 + ", total=" + total
                 + ", estado='" + estado + '\''

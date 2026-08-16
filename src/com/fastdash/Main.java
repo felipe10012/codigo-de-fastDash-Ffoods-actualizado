@@ -2,10 +2,12 @@ package com.fastdash;
 
 import com.fastdash.model.Pedido;
 import com.fastdash.model.Producto;
+import com.fastdash.model.Repartidor;
 import com.fastdash.model.Restaurante;
 import com.fastdash.model.Usuario;
 import com.fastdash.service.PedidoService;
 import com.fastdash.service.ProductoService;
+import com.fastdash.service.RepartidorService;
 import com.fastdash.service.RestauranteService;
 import com.fastdash.service.UsuarioService;
 
@@ -21,6 +23,7 @@ public class Main {
     private static final RestauranteService restauranteService = new RestauranteService();
     private static final ProductoService productoService = new ProductoService();
     private static final PedidoService pedidoService = new PedidoService();
+    private static final RepartidorService repartidorService = new RepartidorService();
 
     public static void main(String[] args) {
         int opcion;
@@ -41,12 +44,15 @@ public class Main {
                     menuPedidos();
                     break;
                 case 5:
+                    menuRepartidores();
+                    break;
+                case 6:
                     System.out.println("Hasta luego!");
                     break;
                 default:
                     System.out.println("Opcion no valida.");
             }
-        } while (opcion != 5);
+        } while (opcion != 6);
     }
 
     private static void mostrarMenuPrincipal() {
@@ -55,7 +61,8 @@ public class Main {
         System.out.println("2. Gestion de Productos");
         System.out.println("3. Gestion de Usuarios");
         System.out.println("4. Gestion de Pedidos");
-        System.out.println("5. Salir");
+        System.out.println("5. Gestion de Repartidores");
+        System.out.println("6. Salir");
     }
 
     private static void menuRestaurantes() {
@@ -331,6 +338,102 @@ public class Main {
         System.out.println("Usuario eliminado.");
     }
 
+    private static void menuRepartidores() {
+        int opcion;
+        do {
+            System.out.println("\n--- REPARTIDORES ---");
+            System.out.println("1. Registrar repartidor");
+            System.out.println("2. Consultar repartidor por id");
+            System.out.println("3. Listar repartidores");
+            System.out.println("4. Listar repartidores por restaurante");
+            System.out.println("5. Actualizar repartidor");
+            System.out.println("6. Eliminar repartidor");
+            System.out.println("7. Volver");
+            opcion = leerEntero("Seleccione una opcion: ");
+            switch (opcion) {
+                case 1:
+                    crearRepartidor();
+                    break;
+                case 2:
+                    consultarRepartidor();
+                    break;
+                case 3:
+                    listarRepartidores();
+                    break;
+                case 4:
+                    listarRepartidoresPorRestaurante();
+                    break;
+                case 5:
+                    actualizarRepartidor();
+                    break;
+                case 6:
+                    eliminarRepartidor();
+                    break;
+            }
+        } while (opcion != 7);
+    }
+
+    private static void crearRepartidor() {
+        Repartidor repartidor = new Repartidor();
+        repartidor.setIdRestaurante(leerEntero("Id del restaurante: "));
+        System.out.print("Nombre: ");
+        repartidor.setNombre(TECLADO.nextLine());
+        System.out.print("Telefono: ");
+        repartidor.setTelefono(TECLADO.nextLine());
+        System.out.print("Vehiculo (moto/bicicleta/carro): ");
+        repartidor.setVehiculo(TECLADO.nextLine());
+        repartidorService.registrar(repartidor);
+        System.out.println("Repartidor registrado con id " + repartidor.getIdRepartidor());
+    }
+
+    private static void consultarRepartidor() {
+        int id = leerEntero("Id del repartidor: ");
+        Repartidor repartidor = repartidorService.consultarPorId(id);
+        System.out.println(repartidor != null ? repartidor : "No existe el repartidor.");
+    }
+
+    private static void listarRepartidores() {
+        List<Repartidor> repartidores = repartidorService.listarTodos();
+        if (repartidores.isEmpty()) {
+            System.out.println("No hay repartidores registrados.");
+        } else {
+            repartidores.forEach(System.out::println);
+        }
+    }
+
+    private static void listarRepartidoresPorRestaurante() {
+        int idRestaurante = leerEntero("Id del restaurante: ");
+        List<Repartidor> repartidores = repartidorService.listarPorRestaurante(idRestaurante);
+        if (repartidores.isEmpty()) {
+            System.out.println("El restaurante no tiene repartidores.");
+        } else {
+            repartidores.forEach(System.out::println);
+        }
+    }
+
+    private static void actualizarRepartidor() {
+        Repartidor repartidor = repartidorService.consultarPorId(leerEntero("Id del repartidor a actualizar: "));
+        if (repartidor == null) {
+            System.out.println("No existe el repartidor.");
+            return;
+        }
+        repartidor.setIdRestaurante(leerEntero("Nuevo id del restaurante: "));
+        System.out.print("Nuevo nombre: ");
+        repartidor.setNombre(TECLADO.nextLine());
+        System.out.print("Nuevo telefono: ");
+        repartidor.setTelefono(TECLADO.nextLine());
+        System.out.print("Nuevo vehiculo: ");
+        repartidor.setVehiculo(TECLADO.nextLine());
+        repartidorService.actualizar(repartidor);
+        System.out.println("Repartidor actualizado.");
+    }
+
+    private static void eliminarRepartidor() {
+        int id = leerEntero("Id del repartidor a eliminar: ");
+        repartidorService.eliminar(id);
+        System.out.println("Repartidor eliminado.");
+    }
+
     private static void menuPedidos() {
         int opcion;
         do {
@@ -339,9 +442,10 @@ public class Main {
             System.out.println("2. Consultar pedido por id");
             System.out.println("3. Listar pedidos");
             System.out.println("4. Listar pedidos por usuario");
-            System.out.println("5. Actualizar pedido");
-            System.out.println("6. Eliminar pedido");
-            System.out.println("7. Volver");
+            System.out.println("5. Listar pedidos por repartidor");
+            System.out.println("6. Actualizar pedido");
+            System.out.println("7. Eliminar pedido");
+            System.out.println("8. Volver");
             opcion = leerEntero("Seleccione una opcion: ");
             switch (opcion) {
                 case 1:
@@ -357,13 +461,16 @@ public class Main {
                     listarPedidosPorUsuario();
                     break;
                 case 5:
-                    actualizarPedido();
+                    listarPedidosPorRepartidor();
                     break;
                 case 6:
+                    actualizarPedido();
+                    break;
+                case 7:
                     eliminarPedido();
                     break;
             }
-        } while (opcion != 7);
+        } while (opcion != 8);
     }
 
     private static void crearPedido() {
@@ -373,6 +480,7 @@ public class Main {
         pedido.setTotal(leerDecimal("Total: "));
         System.out.print("Estado (pendiente/en_preparacion/enviado/entregado/cancelado): ");
         pedido.setEstado(TECLADO.nextLine());
+        pedido.setIdRepartidor(leerEntero("Id del repartidor (0 = sin asignar): "));
         pedidoService.registrar(pedido);
         System.out.println("Pedido registrado con id " + pedido.getIdPedido());
     }
@@ -402,6 +510,16 @@ public class Main {
         }
     }
 
+    private static void listarPedidosPorRepartidor() {
+        int idRepartidor = leerEntero("Id del repartidor: ");
+        List<Pedido> pedidos = pedidoService.listarPorRepartidor(idRepartidor);
+        if (pedidos.isEmpty()) {
+            System.out.println("El repartidor no tiene pedidos.");
+        } else {
+            pedidos.forEach(System.out::println);
+        }
+    }
+
     private static void actualizarPedido() {
         Pedido pedido = pedidoService.consultarPorId(leerEntero("Id del pedido a actualizar: "));
         if (pedido == null) {
@@ -412,6 +530,7 @@ public class Main {
         pedido.setTotal(leerDecimal("Nuevo total: "));
         System.out.print("Nuevo estado: ");
         pedido.setEstado(TECLADO.nextLine());
+        pedido.setIdRepartidor(leerEntero("Nuevo id del repartidor (0 = sin asignar): "));
         pedidoService.actualizar(pedido);
         System.out.println("Pedido actualizado.");
     }

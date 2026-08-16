@@ -30,6 +30,10 @@ public class PedidoService {
         return pedidoDao.listarPorUsuario(idUsuario);
     }
 
+    public List<Pedido> listarPorRepartidor(int idRepartidor) {
+        return pedidoDao.listarPorRepartidor(idRepartidor);
+    }
+
     public void actualizar(Pedido pedido) {
         pedidoDao.actualizar(pedido);
     }

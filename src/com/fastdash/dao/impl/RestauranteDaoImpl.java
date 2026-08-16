@@ -2,59 +2,50 @@ package com.fastdash.dao.impl;
 
 import com.fastdash.dao.RestauranteDao;
 import com.fastdash.model.Restaurante;
-import com.fastdash.util.ConexionBD;
+import com.fastdash.util.ConexionSupabase;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RestauranteDaoImpl implements RestauranteDao {
 
-    private static final String INSERTAR_SQL =
-            "INSERT INTO restaurante (nombre, direccion, telefono) VALUES (?, ?, ?)";
-    private static final String CONSULTAR_POR_ID_SQL =
-            "SELECT id_restaurante, nombre, direccion, telefono FROM restaurante WHERE id_restaurante = ?";
-    private static final String LISTAR_TODOS_SQL =
-            "SELECT id_restaurante, nombre, direccion, telefono FROM restaurante";
-    private static final String ACTUALIZAR_SQL =
-            "UPDATE restaurante SET nombre = ?, direccion = ?, telefono = ? WHERE id_restaurante = ?";
-    private static final String ELIMINAR_SQL =
-            "DELETE FROM restaurante WHERE id_restaurante = ?";
+    private static final String TABLA = "restaurante";
+    private final Gson gson = new Gson();
 
     @Override
     public void insertar(Restaurante restaurante) {
-        try (Connection conexion = ConexionBD.obtenerConexion();
-             PreparedStatement sentencia = conexion.prepareStatement(
-                     INSERTAR_SQL, Statement.RETURN_GENERATED_KEYS)) {
-            sentencia.setString(1, restaurante.getNombre());
-            sentencia.setString(2, restaurante.getDireccion());
-            sentencia.setString(3, restaurante.getTelefono());
-            sentencia.executeUpdate();
-            try (ResultSet claves = sentencia.getGeneratedKeys()) {
-                if (claves.next()) {
-                    restaurante.setIdRestaurante(claves.getInt(1));
-                }
+        try {
+            JsonObject cuerpo = new JsonObject();
+            cuerpo.addProperty("nombre", restaurante.getNombre());
+            if (restaurante.getDireccion() != null) {
+                cuerpo.addProperty("direccion", restaurante.getDireccion());
             }
-        } catch (SQLException excepcion) {
+            if (restaurante.getTelefono() != null) {
+                cuerpo.addProperty("telefono", restaurante.getTelefono());
+            }
+            String respuesta = ConexionSupabase.insertar(TABLA, cuerpo.toString(), true);
+            JsonArray filas = gson.fromJson(respuesta, JsonArray.class);
+            if (filas != null && filas.size() > 0) {
+                restaurante.setIdRestaurante(filas.get(0).getAsJsonObject().get("id_restaurante").getAsInt());
+            }
+        } catch (RuntimeException excepcion) {
             System.err.println("Error al insertar el restaurante: " + excepcion.getMessage());
         }
     }
 
     @Override
     public Restaurante consultarPorId(int idRestaurante) {
-        try (Connection conexion = ConexionBD.obtenerConexion();
-             PreparedStatement sentencia = conexion.prepareStatement(CONSULTAR_POR_ID_SQL)) {
-            sentencia.setInt(1, idRestaurante);
-            try (ResultSet resultado = sentencia.executeQuery()) {
-                if (resultado.next()) {
-                    return mapearRestaurante(resultado);
-                }
+        try {
+            String respuesta = ConexionSupabase.get(
+                    TABLA, "select=*&id_restaurante=eq." + ConexionSupabase.codificar(String.valueOf(idRestaurante)));
+            JsonArray filas = gson.fromJson(respuesta, JsonArray.class);
+            if (filas != null && filas.size() > 0) {
+                return mapearRestaurante(filas.get(0).getAsJsonObject());
             }
-        } catch (SQLException excepcion) {
+        } catch (RuntimeException excepcion) {
             System.err.println("Error al consultar el restaurante por id: " + excepcion.getMessage());
         }
         return null;
@@ -63,13 +54,15 @@ public class RestauranteDaoImpl implements RestauranteDao {
     @Override
     public List<Restaurante> listarTodos() {
         List<Restaurante> restaurantes = new ArrayList<>();
-        try (Connection conexion = ConexionBD.obtenerConexion();
-             PreparedStatement sentencia = conexion.prepareStatement(LISTAR_TODOS_SQL);
-             ResultSet resultado = sentencia.executeQuery()) {
-            while (resultado.next()) {
-                restaurantes.add(mapearRestaurante(resultado));
+        try {
+            String respuesta = ConexionSupabase.get(TABLA, "select=*&order=id_restaurante");
+            JsonArray filas = gson.fromJson(respuesta, JsonArray.class);
+            if (filas != null) {
+                for (int i = 0; i < filas.size(); i++) {
+                    restaurantes.add(mapearRestaurante(filas.get(i).getAsJsonObject()));
+                }
             }
-        } catch (SQLException excepcion) {
+        } catch (RuntimeException excepcion) {
             System.err.println("Error al listar los restaurantes: " + excepcion.getMessage());
         }
         return restaurantes;
@@ -77,35 +70,42 @@ public class RestauranteDaoImpl implements RestauranteDao {
 
     @Override
     public void actualizar(Restaurante restaurante) {
-        try (Connection conexion = ConexionBD.obtenerConexion();
-             PreparedStatement sentencia = conexion.prepareStatement(ACTUALIZAR_SQL)) {
-            sentencia.setString(1, restaurante.getNombre());
-            sentencia.setString(2, restaurante.getDireccion());
-            sentencia.setString(3, restaurante.getTelefono());
-            sentencia.setInt(4, restaurante.getIdRestaurante());
-            sentencia.executeUpdate();
-        } catch (SQLException excepcion) {
+        try {
+            JsonObject cuerpo = new JsonObject();
+            cuerpo.addProperty("nombre", restaurante.getNombre());
+            if (restaurante.getDireccion() != null) {
+                cuerpo.addProperty("direccion", restaurante.getDireccion());
+            }
+            if (restaurante.getTelefono() != null) {
+                cuerpo.addProperty("telefono", restaurante.getTelefono());
+            }
+            String filtro = "id_restaurante=eq." + ConexionSupabase.codificar(String.valueOf(restaurante.getIdRestaurante()));
+            ConexionSupabase.actualizar(TABLA, filtro, cuerpo.toString());
+        } catch (RuntimeException excepcion) {
             System.err.println("Error al actualizar el restaurante: " + excepcion.getMessage());
         }
     }
 
     @Override
     public void eliminar(int idRestaurante) {
-        try (Connection conexion = ConexionBD.obtenerConexion();
-             PreparedStatement sentencia = conexion.prepareStatement(ELIMINAR_SQL)) {
-            sentencia.setInt(1, idRestaurante);
-            sentencia.executeUpdate();
-        } catch (SQLException excepcion) {
+        try {
+            String filtro = "id_restaurante=eq." + ConexionSupabase.codificar(String.valueOf(idRestaurante));
+            ConexionSupabase.eliminar(TABLA, filtro);
+        } catch (RuntimeException excepcion) {
             System.err.println("Error al eliminar el restaurante: " + excepcion.getMessage());
         }
     }
 
-    private Restaurante mapearRestaurante(ResultSet resultado) throws SQLException {
+    private Restaurante mapearRestaurante(JsonObject fila) {
         Restaurante restaurante = new Restaurante();
-        restaurante.setIdRestaurante(resultado.getInt("id_restaurante"));
-        restaurante.setNombre(resultado.getString("nombre"));
-        restaurante.setDireccion(resultado.getString("direccion"));
-        restaurante.setTelefono(resultado.getString("telefono"));
+        restaurante.setIdRestaurante(fila.get("id_restaurante").getAsInt());
+        restaurante.setNombre(texto(fila, "nombre"));
+        restaurante.setDireccion(texto(fila, "direccion"));
+        restaurante.setTelefono(texto(fila, "telefono"));
         return restaurante;
+    }
+
+    private String texto(JsonObject fila, String columna) {
+        return fila.has(columna) && !fila.get(columna).isJsonNull() ? fila.get(columna).getAsString() : null;
     }
 }

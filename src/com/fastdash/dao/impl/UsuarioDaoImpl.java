@@ -2,62 +2,49 @@ package com.fastdash.dao.impl;
 
 import com.fastdash.dao.UsuarioDao;
 import com.fastdash.model.Usuario;
-import com.fastdash.util.ConexionBD;
+import com.fastdash.util.ConexionSupabase;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UsuarioDaoImpl implements UsuarioDao {
 
-    private static final String INSERTAR_SQL =
-            "INSERT INTO usuario (nombre_completo, email, contrasena, rol) VALUES (?, ?, ?, ?)";
-    private static final String CONSULTAR_POR_ID_SQL =
-            "SELECT id_usuario, nombre_completo, email, contrasena, rol FROM usuario WHERE id_usuario = ?";
-    private static final String LISTAR_TODOS_SQL =
-            "SELECT id_usuario, nombre_completo, email, contrasena, rol FROM usuario";
-    private static final String CONSULTAR_POR_EMAIL_SQL =
-            "SELECT id_usuario, nombre_completo, email, contrasena, rol FROM usuario WHERE email = ?";
-    private static final String ACTUALIZAR_SQL =
-            "UPDATE usuario SET nombre_completo = ?, email = ?, contrasena = ?, rol = ? WHERE id_usuario = ?";
-    private static final String ELIMINAR_SQL =
-            "DELETE FROM usuario WHERE id_usuario = ?";
+    private static final String TABLA = "usuario";
+    private final Gson gson = new Gson();
 
     @Override
     public void insertar(Usuario usuario) {
-        try (Connection conexion = ConexionBD.obtenerConexion();
-             PreparedStatement sentencia = conexion.prepareStatement(
-                     INSERTAR_SQL, Statement.RETURN_GENERATED_KEYS)) {
-            sentencia.setString(1, usuario.getNombreCompleto());
-            sentencia.setString(2, usuario.getEmail());
-            sentencia.setString(3, usuario.getContrasena());
-            sentencia.setString(4, usuario.getRol());
-            sentencia.executeUpdate();
-            try (ResultSet claves = sentencia.getGeneratedKeys()) {
-                if (claves.next()) {
-                    usuario.setIdUsuario(claves.getInt(1));
-                }
+        try {
+            JsonObject cuerpo = new JsonObject();
+            cuerpo.addProperty("nombre_completo", usuario.getNombreCompleto());
+            cuerpo.addProperty("email", usuario.getEmail());
+            cuerpo.addProperty("contrasena", usuario.getContrasena());
+            if (usuario.getRol() != null) {
+                cuerpo.addProperty("rol", usuario.getRol());
             }
-        } catch (SQLException excepcion) {
+            String respuesta = ConexionSupabase.insertar(TABLA, cuerpo.toString(), true);
+            JsonArray filas = gson.fromJson(respuesta, JsonArray.class);
+            if (filas != null && filas.size() > 0) {
+                usuario.setIdUsuario(filas.get(0).getAsJsonObject().get("id_usuario").getAsInt());
+            }
+        } catch (RuntimeException excepcion) {
             System.err.println("Error al insertar el usuario: " + excepcion.getMessage());
         }
     }
 
     @Override
     public Usuario consultarPorId(int idUsuario) {
-        try (Connection conexion = ConexionBD.obtenerConexion();
-             PreparedStatement sentencia = conexion.prepareStatement(CONSULTAR_POR_ID_SQL)) {
-            sentencia.setInt(1, idUsuario);
-            try (ResultSet resultado = sentencia.executeQuery()) {
-                if (resultado.next()) {
-                    return mapearUsuario(resultado);
-                }
+        try {
+            String respuesta = ConexionSupabase.get(
+                    TABLA, "select=*&id_usuario=eq." + ConexionSupabase.codificar(String.valueOf(idUsuario)));
+            JsonArray filas = gson.fromJson(respuesta, JsonArray.class);
+            if (filas != null && filas.size() > 0) {
+                return mapearUsuario(filas.get(0).getAsJsonObject());
             }
-        } catch (SQLException excepcion) {
+        } catch (RuntimeException excepcion) {
             System.err.println("Error al consultar el usuario por id: " + excepcion.getMessage());
         }
         return null;
@@ -66,13 +53,15 @@ public class UsuarioDaoImpl implements UsuarioDao {
     @Override
     public List<Usuario> listarTodos() {
         List<Usuario> usuarios = new ArrayList<>();
-        try (Connection conexion = ConexionBD.obtenerConexion();
-             PreparedStatement sentencia = conexion.prepareStatement(LISTAR_TODOS_SQL);
-             ResultSet resultado = sentencia.executeQuery()) {
-            while (resultado.next()) {
-                usuarios.add(mapearUsuario(resultado));
+        try {
+            String respuesta = ConexionSupabase.get(TABLA, "select=*&order=id_usuario");
+            JsonArray filas = gson.fromJson(respuesta, JsonArray.class);
+            if (filas != null) {
+                for (int i = 0; i < filas.size(); i++) {
+                    usuarios.add(mapearUsuario(filas.get(i).getAsJsonObject()));
+                }
             }
-        } catch (SQLException excepcion) {
+        } catch (RuntimeException excepcion) {
             System.err.println("Error al listar los usuarios: " + excepcion.getMessage());
         }
         return usuarios;
@@ -80,15 +69,14 @@ public class UsuarioDaoImpl implements UsuarioDao {
 
     @Override
     public Usuario consultarPorEmail(String email) {
-        try (Connection conexion = ConexionBD.obtenerConexion();
-             PreparedStatement sentencia = conexion.prepareStatement(CONSULTAR_POR_EMAIL_SQL)) {
-            sentencia.setString(1, email);
-            try (ResultSet resultado = sentencia.executeQuery()) {
-                if (resultado.next()) {
-                    return mapearUsuario(resultado);
-                }
+        try {
+            String respuesta = ConexionSupabase.get(
+                    TABLA, "select=*&email=eq." + ConexionSupabase.codificar(email));
+            JsonArray filas = gson.fromJson(respuesta, JsonArray.class);
+            if (filas != null && filas.size() > 0) {
+                return mapearUsuario(filas.get(0).getAsJsonObject());
             }
-        } catch (SQLException excepcion) {
+        } catch (RuntimeException excepcion) {
             System.err.println("Error al consultar el usuario por email: " + excepcion.getMessage());
         }
         return null;
@@ -96,37 +84,42 @@ public class UsuarioDaoImpl implements UsuarioDao {
 
     @Override
     public void actualizar(Usuario usuario) {
-        try (Connection conexion = ConexionBD.obtenerConexion();
-             PreparedStatement sentencia = conexion.prepareStatement(ACTUALIZAR_SQL)) {
-            sentencia.setString(1, usuario.getNombreCompleto());
-            sentencia.setString(2, usuario.getEmail());
-            sentencia.setString(3, usuario.getContrasena());
-            sentencia.setString(4, usuario.getRol());
-            sentencia.setInt(5, usuario.getIdUsuario());
-            sentencia.executeUpdate();
-        } catch (SQLException excepcion) {
+        try {
+            JsonObject cuerpo = new JsonObject();
+            cuerpo.addProperty("nombre_completo", usuario.getNombreCompleto());
+            cuerpo.addProperty("email", usuario.getEmail());
+            cuerpo.addProperty("contrasena", usuario.getContrasena());
+            if (usuario.getRol() != null) {
+                cuerpo.addProperty("rol", usuario.getRol());
+            }
+            String filtro = "id_usuario=eq." + ConexionSupabase.codificar(String.valueOf(usuario.getIdUsuario()));
+            ConexionSupabase.actualizar(TABLA, filtro, cuerpo.toString());
+        } catch (RuntimeException excepcion) {
             System.err.println("Error al actualizar el usuario: " + excepcion.getMessage());
         }
     }
 
     @Override
     public void eliminar(int idUsuario) {
-        try (Connection conexion = ConexionBD.obtenerConexion();
-             PreparedStatement sentencia = conexion.prepareStatement(ELIMINAR_SQL)) {
-            sentencia.setInt(1, idUsuario);
-            sentencia.executeUpdate();
-        } catch (SQLException excepcion) {
+        try {
+            String filtro = "id_usuario=eq." + ConexionSupabase.codificar(String.valueOf(idUsuario));
+            ConexionSupabase.eliminar(TABLA, filtro);
+        } catch (RuntimeException excepcion) {
             System.err.println("Error al eliminar el usuario: " + excepcion.getMessage());
         }
     }
 
-    private Usuario mapearUsuario(ResultSet resultado) throws SQLException {
+    private Usuario mapearUsuario(JsonObject fila) {
         Usuario usuario = new Usuario();
-        usuario.setIdUsuario(resultado.getInt("id_usuario"));
-        usuario.setNombreCompleto(resultado.getString("nombre_completo"));
-        usuario.setEmail(resultado.getString("email"));
-        usuario.setContrasena(resultado.getString("contrasena"));
-        usuario.setRol(resultado.getString("rol"));
+        usuario.setIdUsuario(fila.get("id_usuario").getAsInt());
+        usuario.setNombreCompleto(texto(fila, "nombre_completo"));
+        usuario.setEmail(texto(fila, "email"));
+        usuario.setContrasena(texto(fila, "contrasena"));
+        usuario.setRol(texto(fila, "rol"));
         return usuario;
+    }
+
+    private String texto(JsonObject fila, String columna) {
+        return fila.has(columna) && !fila.get(columna).isJsonNull() ? fila.get(columna).getAsString() : null;
     }
 }
