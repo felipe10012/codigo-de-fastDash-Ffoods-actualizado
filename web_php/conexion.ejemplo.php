@@ -1,8 +1,13 @@
 <?php
+// PLANTILLA de conexion - NO contiene contraseñas reales
+// 1. Copia este archivo con el nombre "conexion.php"
+// 2. Coloca tus credenciales reales
+// 3. conexion.php esta en .gitignore y nunca se sube a GitHub
+
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'fastdash_foods');
-define('DB_USER', 'root');
-define('DB_PASS', 'Felipe213550');
+define('DB_NAME', 'nombre_de_tu_base');
+define('DB_USER', 'tu_usuario');
+define('DB_PASS', 'tu_contraseña');
 
 function obtenerConexion(): PDO {
     try {

@@ -4,3 +4,6 @@ out/
 # Temporales de Microsoft Office
 ~$*
 *.tmp
+
+# Credenciales locales - no subir
+web_php/conexion.php
