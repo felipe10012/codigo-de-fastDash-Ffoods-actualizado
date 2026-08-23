@@ -46,18 +46,36 @@ CREATE TABLE IF NOT EXISTS producto (
 );
 
 -- ---------------------------------------------------------------------
+-- Tabla: repartidor (cada repartidor pertenece a un restaurante)
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS repartidor (
+    id_repartidor  INT AUTO_INCREMENT PRIMARY KEY,
+    id_restaurante INT NOT NULL,
+    nombre         VARCHAR(100) NOT NULL,
+    telefono       VARCHAR(20),
+    vehiculo       VARCHAR(20),
+    CONSTRAINT fk_repartidor_restaurante
+        FOREIGN KEY (id_restaurante) REFERENCES restaurante (id_restaurante)
+        ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- ---------------------------------------------------------------------
 -- Tabla: pedido
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS pedido (
     id_pedido     INT AUTO_INCREMENT PRIMARY KEY,
     id_usuario    INT NOT NULL,
+    id_repartidor INT NULL,
     fecha_pedido  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     total         DECIMAL(10, 2) NOT NULL,
     estado        ENUM('pendiente', 'en_preparacion', 'enviado', 'entregado', 'cancelado')
                   NOT NULL DEFAULT 'pendiente',
     CONSTRAINT fk_pedido_usuario
         FOREIGN KEY (id_usuario) REFERENCES usuario (id_usuario)
-        ON DELETE RESTRICT ON UPDATE CASCADE
+        ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_pedido_repartidor
+        FOREIGN KEY (id_repartidor) REFERENCES repartidor (id_repartidor)
+        ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- ---------------------------------------------------------------------
@@ -99,3 +117,10 @@ INSERT INTO pedido (id_usuario, total, estado) VALUES
 INSERT INTO pedido_producto (id_pedido, id_producto, cantidad) VALUES
     (1, 1, 1),
     (1, 2, 1);
+
+INSERT INTO repartidor (id_restaurante, nombre, telefono, vehiculo) VALUES
+    (1, 'Carlos Perez',  '3005557788', 'moto'),
+    (1, 'Pedro Jimenez', '3005551122', 'carro'),
+    (2, 'Ana Torres',    '3005559900', 'bicicleta');
+
+UPDATE pedido SET id_repartidor = 1 WHERE id_pedido = 1;

@@ -105,7 +105,19 @@ public class Main {
         System.out.print("Telefono: ");
         restaurante.setTelefono(TECLADO.nextLine());
         restauranteService.registrar(restaurante);
-        System.out.println("Restaurante registrado con id " + restaurante.getIdRestaurante());
+        confirmarRegistro(restaurante.getIdRestaurante(), "restaurante");
+    }
+
+    private static void confirmarRegistro(int idGenerado, String entidad) {
+        if (idGenerado > 0) {
+            System.out.println(capitalizar(entidad) + " registrado con id " + idGenerado);
+        } else {
+            System.out.println("No se pudo registrar el " + entidad + ".");
+        }
+    }
+
+    private static String capitalizar(String texto) {
+        return Character.toUpperCase(texto.charAt(0)) + texto.substring(1);
     }
 
     private static void consultarRestaurante() {
@@ -192,7 +204,7 @@ public class Main {
         System.out.print("Categoria: ");
         producto.setCategoria(TECLADO.nextLine());
         productoService.registrar(producto);
-        System.out.println("Producto registrado con id " + producto.getIdProducto());
+        confirmarRegistro(producto.getIdProducto(), "producto");
     }
 
     private static void consultarProducto() {
@@ -290,7 +302,7 @@ public class Main {
         System.out.print("Rol (cliente/admin): ");
         usuario.setRol(TECLADO.nextLine());
         usuarioService.registrar(usuario);
-        System.out.println("Usuario registrado con id " + usuario.getIdUsuario());
+        confirmarRegistro(usuario.getIdUsuario(), "usuario");
     }
 
     private static void consultarUsuarioPorId() {
@@ -383,7 +395,7 @@ public class Main {
         System.out.print("Vehiculo (moto/bicicleta/carro): ");
         repartidor.setVehiculo(TECLADO.nextLine());
         repartidorService.registrar(repartidor);
-        System.out.println("Repartidor registrado con id " + repartidor.getIdRepartidor());
+        confirmarRegistro(repartidor.getIdRepartidor(), "repartidor");
     }
 
     private static void consultarRepartidor() {
@@ -482,7 +494,7 @@ public class Main {
         pedido.setEstado(TECLADO.nextLine());
         pedido.setIdRepartidor(leerEntero("Id del repartidor (0 = sin asignar): "));
         pedidoService.registrar(pedido);
-        System.out.println("Pedido registrado con id " + pedido.getIdPedido());
+        confirmarRegistro(pedido.getIdPedido(), "pedido");
     }
 
     private static void consultarPedido() {
@@ -542,13 +554,26 @@ public class Main {
     }
 
     private static int leerEntero(String mensaje) {
-        System.out.print(mensaje);
-        int valor = Integer.parseInt(TECLADO.nextLine().trim());
-        return valor;
+        while (true) {
+            System.out.print(mensaje);
+            String linea = TECLADO.nextLine().trim();
+            try {
+                return Integer.parseInt(linea);
+            } catch (NumberFormatException excepcion) {
+                System.out.println("Valor invalido. Ingresa un numero entero.");
+            }
+        }
     }
 
     private static BigDecimal leerDecimal(String mensaje) {
-        System.out.print(mensaje);
-        return new BigDecimal(TECLADO.nextLine().trim());
+        while (true) {
+            System.out.print(mensaje);
+            String linea = TECLADO.nextLine().trim();
+            try {
+                return new BigDecimal(linea);
+            } catch (NumberFormatException excepcion) {
+                System.out.println("Valor invalido. Ingresa un numero decimal (ejemplo: 15000.00).");
+            }
+        }
     }
 }
