@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FastDash Ffoods - Wireframes del modulo de consola Java con JDBC y MySQL">
+    <title>FastDash Ffoods | Prototipo modulo de consola</title>
+    <style>
+        :root {
+            --color-fondo-terminal: #1e1e2e;
+            --color-barra-terminal: #313244;
+            --color-texto-terminal: #cdd6f4;
+            --color-verde: #a6e3a1;
+            --color-amarillo: #f9e2af;
+            --color-rojo: #f38ba8;
+            --color-azul: #89b4fa;
+            --color-morado: #b4befe;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 32px 16px;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #f4f1fa;
+            color: #222222;
+        }
+
+        .encabezado {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .encabezado h1 {
+            margin: 0 0 8px;
+            color: #5b21a8;
+        }
+
+        .encabezado p {
+            margin: 0;
+            color: #666666;
+        }
+
+        .galeria {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+            gap: 28px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .ventana {
+            background: var(--color-fondo-terminal);
+            border-radius: 10px;
+            box-shadow: 0 12px 30px rgba(30, 0, 50, 0.25);
+            overflow: hidden;
+        }
+
+        .ventana-barra {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            background: var(--color-barra-terminal);
+        }
+
+        .punto {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .punto-rojo { background: #f38ba8; }
+        .punto-amarillo { background: #f9e2af; }
+        .punto-verde { background: #a6e3a1; }
+
+        .ventana-titulo {
+            margin-left: 8px;
+            font-size: 13px;
+            color: #a6adc8;
+        }
+
+        .terminal {
+            margin: 0;
+            padding: 18px;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 14px;
+            line-height: 1.55;
+            color: var(--color-texto-terminal);
+            white-space: pre-wrap;
+        }
+
+        .titulo-app { color: var(--color-morado); font-weight: bold; }
+        .seccion { color: var(--color-azul); font-weight: bold; }
+        .entrada { color: var(--color-verde); }
+        .exito { color: var(--color-verde); }
+        .alerta { color: var(--color-rojo); }
+        .dato { color: var(--color-amarillo); }
+    </style>
+</head>
+<body>
+    <header class="encabezado">
+        <h1>Wireframes &mdash; M&oacute;dulo de consola FastDash Ffoods</h1>
+        <p>Evidencia GA7-220501096-AA2-EV01 &middot; Java + JDBC + MySQL</p>
+    </header>
+
+    <main class="galeria">
+        <section class="ventana">
+            <div class="ventana-barra">
+                <span class="punto punto-rojo"></span><span class="punto punto-amarillo"></span><span class="punto punto-verde"></span>
+                <span class="ventana-titulo">Pantalla 1 - Menu principal</span>
+            </div>
+            <pre class="terminal"><span class="titulo-app">===== FASTDASH FFOODS =====</span>
+1. Gestion de Restaurantes
+2. Gestion de Productos
+3. Gestion de Usuarios
+4. Gestion de Pedidos
+5. Gestion de Repartidores
+6. Salir
+<span class="entrada">Seleccione una opcion: _</span></pre>
+        </section>
+
+        <section class="ventana">
+            <div class="ventana-barra">
+                <span class="punto punto-rojo"></span><span class="punto punto-amarillo"></span><span class="punto punto-verde"></span>
+                <span class="ventana-titulo">Pantalla 2 - Submenu CRUD (ejemplo: Restaurantes)</span>
+            </div>
+            <pre class="terminal"><span class="seccion">--- RESTAURANTES ---</span>
+1. Registrar restaurante      <span class="dato">(INSERT)</span>
+2. Consultar restaurante por id <span class="dato">(SELECT)</span>
+3. Listar restaurantes        <span class="dato">(SELECT)</span>
+4. Actualizar restaurante     <span class="dato">(UPDATE)</span>
+5. Eliminar restaurante       <span class="dato">(DELETE)</span>
+6. Volver
+<span class="entrada">Seleccione una opcion: _</span></pre>
+        </section>
+
+        <section class="ventana">
+            <div class="ventana-barra">
+                <span class="punto punto-rojo"></span><span class="punto punto-amarillo"></span><span class="punto punto-verde"></span>
+                <span class="ventana-titulo">Pantalla 3 - Insercion de restaurante</span>
+            </div>
+            <pre class="terminal">Nombre: <span class="entrada">Sushi Express</span>
+Direccion: <span class="entrada">Cra 45 # 12-30</span>
+Telefono: <span class="entrada">3001234567</span>
+<span class="exito">Restaurante registrado con id 5</span></pre>
+        </section>
+
+        <section class="ventana">
+            <div class="ventana-barra">
+                <span class="punto punto-rojo"></span><span class="punto punto-amarillo"></span><span class="punto punto-verde"></span>
+                <span class="ventana-titulo">Pantalla 4 - Consulta y listado</span>
+            </div>
+            <pre class="terminal">Id del restaurante: <span class="entrada">1</span>
+<span class="dato">Restaurante{idRestaurante=1, nombre='Burger King Sabor',
+ direccion='Calle 10 # 5-22', telefono='3001112233'}</span>
+
+Listando todos:
+<span class="dato">Restaurante{idRestaurante=1, nombre='Burger King Sabor', ...}</span>
+<span class="dato">Restaurante{idRestaurante=2, nombre='Pizzas del Valle', ...}</span></pre>
+        </section>
+
+        <section class="ventana">
+            <div class="ventana-barra">
+                <span class="punto punto-rojo"></span><span class="punto punto-amarillo"></span><span class="punto punto-verde"></span>
+                <span class="ventana-titulo">Pantalla 5 - Actualizacion</span>
+            </div>
+            <pre class="terminal">Id del restaurante a actualizar: <span class="entrada">1</span>
+Nuevo nombre: <span class="entrada">Burger King Sabores</span>
+Nueva direccion: <span class="entrada">Calle 10 # 5-25</span>
+Nuevo telefono: <span class="entrada">3001112299</span>
+<span class="exito">Restaurante actualizado.</span></pre>
+        </section>
+
+        <section class="ventana">
+            <div class="ventana-barra">
+                <span class="punto punto-rojo"></span><span class="punto punto-amarillo"></span><span class="punto punto-verde"></span>
+                <span class="ventana-titulo">Pantalla 6 - Eliminacion y validaciones</span>
+            </div>
+            <pre class="terminal">Id del restaurante a eliminar: <span class="entrada">1</span>
+<span class="exito">Restaurante eliminado.</span>
+
+<span class="alerta">-- Validaciones del sistema --</span>
+Valor invalido. Ingresa un numero entero.
+El nombre es obligatorio.
+El email no tiene un formato valido.</pre>
+        </section>
+    </main>
+</body>
+</html>
