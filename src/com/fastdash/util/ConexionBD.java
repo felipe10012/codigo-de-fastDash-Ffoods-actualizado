@@ -15,7 +15,7 @@ public class ConexionBD {
     private static final String PUERTO = "3306";
     private static final String BASE_DE_DATOS = "fastdash_foods";
     private static final String USUARIO = "root";
-    private static final String CONTRASENA = "Felipe21";
+    private static final String CONTRASENA = "Felipe2602";
 
     private static final String URL =
             "jdbc:mysql://" + HOST + ":" + PUERTO + "/" + BASE_DE_DATOS
