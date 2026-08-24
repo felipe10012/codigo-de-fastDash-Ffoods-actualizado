@@ -1,0 +1,9 @@
+# Plantilla de configuracion de la base de datos MySQL.
+# Copia este archivo como "db.properties" y coloca tus datos reales.
+# El archivo db.properties esta ignorado por Git para no publicar credenciales.
+
+db.host=localhost
+db.puerto=3306
+db.nombre=fastdash_foods
+db.usuario=root
+db.contrasena=TU_CONTRASENA

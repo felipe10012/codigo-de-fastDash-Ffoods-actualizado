@@ -6,4 +6,4 @@ out/
 *.tmp
 
 # Credenciales locales - no subir
-web_php/conexion.php
+db.properties
