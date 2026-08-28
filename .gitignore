@@ -7,3 +7,4 @@ out/
 
 # Credenciales locales - no subir
 db.properties
+php/conexion.php
