@@ -1,0 +1,33 @@
+{
+  "name": "fastdash-ffoods",
+  "version": "1.0.0",
+  "description": "Sistema de gestion de restaurantes, productos, usuarios, pedidos y repartidores. Modulo de consola en **Java** con conexion a base de datos **MySQL** mediante **JDBC**.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "lib": "lib"
+  },
+  "scripts": {
+    "start": "node api/server.js",
+    "dev": "nodemon api/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/felipe10012/codigo-de-fastDash-Ffoods-actualizado.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/felipe10012/codigo-de-fastDash-Ffoods-actualizado/issues"
+  },
+  "homepage": "https://github.com/felipe10012/codigo-de-fastDash-Ffoods-actualizado#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "express": "^5.2.1",
+    "mysql2": "^3.24.3",
+    "nodemon": "^3.1.14"
+  }
+}
